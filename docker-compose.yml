@@ -1,0 +1,16 @@
+version: '3'
+services:
+  dev-db:
+    image: postgres:15
+    ports:
+      - 5436:5432
+    environment:
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=restaurant-system
+    volumes:
+      - ~/apps/postgres:/var/lib/postgresql/data
+    networks:
+      - restaurant-system
+networks:
+  restaurant-system:
