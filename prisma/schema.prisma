@@ -13,6 +13,7 @@ datasource db {
 model User {
   id              Int      @id @default(autoincrement())
   email           String   @unique
+  passwordHash    String   @default("")
   firstName       String
   lastName        String?
   isEmailVerified Boolean  @default(false)
@@ -31,9 +32,10 @@ model Food {
 }
 
 model Admin {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  passwordHash String   @default("")
+  name         String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now())
 }
