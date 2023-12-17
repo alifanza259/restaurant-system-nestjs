@@ -4,10 +4,11 @@ import { AddFoodDto, AdminLoginDto, UpdateFoodDto } from "./dto";
 import * as bcrypt from 'bcrypt'
 import { AuthService } from "src/auth/auth.service";
 import { ConfigService } from "@nestjs/config";
+import { AWSService } from "src/aws/aws.service";
 
 @Injectable()
 export class AdminService {
-    constructor(private prismaService: PrismaService, private authService: AuthService, private configService: ConfigService) { }
+    constructor(private prismaService: PrismaService, private authService: AuthService, private configService: ConfigService, private AWSService: AWSService) { }
     async loginAdmin(adminLoginDto: AdminLoginDto) {
         const admin = await this.prismaService.admin.findUnique({
             where: {
@@ -35,7 +36,8 @@ export class AdminService {
     async addFood(addFoodDto: AddFoodDto, file: Express.Multer.File | null) {
         let imageUrl: string | null = null;
         if (file) {
-            // TODO: Upload Image to S3
+            const res = await this.AWSService.uploadToS3(file)
+            imageUrl = res.Location
         }
 
         const food = await this.prismaService.food.create({
@@ -50,7 +52,8 @@ export class AdminService {
     async updateFoodById(foodId: number, updateFoodDto: UpdateFoodDto, file: Express.Multer.File | null) {
         let imageUrl: string | null = null;
         if (file) {
-            // TODO: Upload Image to S3
+            const res = await this.AWSService.uploadToS3(file)
+            imageUrl = res.Location
         }
 
         const updatedFood = await this.prismaService.food.update({

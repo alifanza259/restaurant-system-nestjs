@@ -2,23 +2,24 @@ import { Body, Controller, Delete, Get, MaxFileSizeValidator, Param, ParseFilePi
 import { AdminService } from "./admin.service";
 import { AddFoodDto, AdminLoginDto, UpdateFoodDto } from "./dto";
 import { AuthGuard } from "src/auth/guard";
-import { GetAdmin } from "./decorator";
+import { GetAdmin, IsPublic } from "./decorator";
 import { Admin } from "@prisma/client";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { FileSizeValidationPipe } from "./pipe";
 
+@UseGuards(AuthGuard)
+@SetMetadata("role", "admin")
 @Controller("admin")
 export class AdminController {
     constructor(private adminService: AdminService) { }
 
-    @UseGuards(AuthGuard)
-    @SetMetadata('role', 'admin')
     @Get("me")
     getMe(@GetAdmin() admin: Admin) {
         return admin
     }
 
     @Post("login")
+    @IsPublic()
     loginAdmin(@Body() adminLoginDto: AdminLoginDto) {
         return this.adminService.loginAdmin(adminLoginDto)
     }
