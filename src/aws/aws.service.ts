@@ -6,11 +6,17 @@ import * as AWS from 'aws-sdk'
 export class AWSService {
     private AWS_S3_BUCKET = 'restaurant-system-111';
     private s3: AWS.S3;
+    private sqs: AWS.SQS;
     constructor(private configService: ConfigService) {
-        this.s3 = new AWS.S3(new AWS.Credentials({
+        const awsCredentials = new AWS.Credentials({
             accessKeyId: this.configService.get("AWS_ACCESS_KEY"),
             secretAccessKey: this.configService.get("AWS_SECRET_KEY")
-        }))
+        })
+        this.s3 = new AWS.S3(awsCredentials)
+        this.sqs = new AWS.SQS({
+            credentials: awsCredentials,
+            region: "ap-southeast-1"
+        })
     }
     async uploadToS3(file: Express.Multer.File) {
         try {
@@ -22,6 +28,20 @@ export class AWSService {
                 ContentType: file.mimetype
             }).promise()
             return s3Response
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    async createSQSQueue(payload) {
+        try {
+            const resp = await this.sqs.sendMessage({
+                MessageBody: payload,
+                QueueUrl: this.configService.get("SQS_QUEUE_ENDPOINT")
+            }).promise();
+            console.log(resp.MessageId)
+
+            return resp
         } catch (error) {
             console.log(error)
         }

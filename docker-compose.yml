@@ -12,5 +12,15 @@ services:
       - ~/apps/postgres:/var/lib/postgresql/data
     networks:
       - restaurant-system
+  test-db:
+    image: postgres:15
+    ports:
+      - 5437:5432
+    environment:
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=restaurant-system
+    networks:
+      - restaurant-system
 networks:
   restaurant-system:

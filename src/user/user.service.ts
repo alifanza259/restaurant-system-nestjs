@@ -4,10 +4,11 @@ import { PrismaService } from "src/prisma/prisma.service";
 import * as bcrypt from 'bcrypt'
 import { AuthService } from "src/auth/auth.service";
 import { ConfigService } from "@nestjs/config";
+import { AWSService } from "src/aws/aws.service";
 
 @Injectable()
 export class UserService {
-    constructor(private prismaService: PrismaService, private authService: AuthService, private configService: ConfigService) { }
+    constructor(private prismaService: PrismaService, private authService: AuthService, private configService: ConfigService, private awsService: AWSService) { }
     async registerUser(registerUserDto: RegisterUserDto) {
         const existingUser = await this.prismaService.user.findFirst({
             where: {
@@ -26,7 +27,12 @@ export class UserService {
             }
         })
 
-        // TODO: Send Email Verification
+        // TODO: Add verify email process
+
+        await this.awsService.createSQSQueue(JSON.stringify({
+            "purpose": "register",
+            "email": user.email
+        }))
 
         return user;
     }
